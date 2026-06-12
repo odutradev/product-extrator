@@ -136,3 +136,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   scrapeProductFromUrl(message.url).then(sendResponse);
   return true;
 });
+
+chrome.action.onClicked.addListener(() => {
+  chrome.tabs.create({ url: chrome.runtime.getURL('popup.html') });
+});

@@ -9,11 +9,11 @@
 </head>
 <body class="h-full flex flex-col justify-between">
   <header class="border-b border-slate-900 bg-slate-950/80 backdrop-blur sticky top-0 z-50 px-6 py-4">
-    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+    <div class="w-full flex flex-col sm:flex-row items-center justify-between gap-4">
       <div class="flex items-center gap-3">
         <div class="p-2 bg-emerald-500/10 text-emerald-400 rounded-xl">
           <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863(9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
           </svg>
         </div>
         <div>
@@ -27,10 +27,7 @@
       </div>
     </div>
   </header>
-
-  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
-
-    <!-- Drop Zone -->
+  <main class="flex-1 w-full p-4 sm:p-6 lg:p-8 space-y-6">
     <section id="dropZone" class="border-2 border-dashed border-slate-800 hover:border-slate-700 bg-slate-900/20 rounded-2xl p-8 text-center cursor-pointer transition-all">
       <input type="file" id="fileInput" accept=".txt" class="hidden">
       <div class="max-w-md mx-auto space-y-3">
@@ -45,14 +42,8 @@
         </div>
       </div>
     </section>
-
-    <!-- Toast -->
     <div id="statusToast" class="hidden p-4 rounded-xl border flex items-center justify-between gap-3 text-sm transition-all duration-300"></div>
-
-    <!-- Dashboard -->
     <section id="dashboard" class="hidden space-y-6">
-
-      <!-- Stats -->
       <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
         <div class="bg-slate-900/40 border border-slate-900 rounded-xl p-5">
           <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Mapeados que Entraram</p>
@@ -71,8 +62,6 @@
           <p id="statTotal" class="text-3xl font-bold text-slate-400 mt-2">0</p>
         </div>
       </div>
-
-      <!-- Tabs -->
       <div class="border-b border-slate-900 flex flex-wrap gap-4">
         <button id="tabBtnJoined" class="border-b-2 border-emerald-500 text-emerald-400 pb-3 font-semibold text-sm transition-all">
           Mapeamento de Entradas
@@ -84,8 +73,6 @@
           Vitrine de Produtos
         </button>
       </div>
-
-      <!-- Tab: Joined -->
       <div id="tabContentJoined" class="space-y-4">
         <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div class="relative w-full lg:w-72">
@@ -120,8 +107,6 @@
           </table>
         </div>
       </div>
-
-      <!-- Tab: Products -->
       <div id="tabContentProducts" class="hidden space-y-4">
         <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div class="relative w-full sm:w-72">
@@ -134,11 +119,7 @@
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="productsGrid"></div>
       </div>
-
-      <!-- Tab: Categorized -->
       <div id="tabContentCategorized" class="hidden space-y-6">
-
-        <!-- Header card -->
         <div class="bg-slate-900/20 border border-slate-900 rounded-xl p-5 flex flex-col md:flex-row items-center justify-between gap-4">
           <div class="space-y-1">
             <h2 class="text-base font-bold text-slate-200">Rastreamento Semântico Automatizado</h2>
@@ -154,8 +135,6 @@
             </button>
           </div>
         </div>
-
-        <!-- Progress bar -->
         <div id="analysisProgressContainer" class="hidden bg-slate-900/30 border border-slate-900 rounded-xl p-5 space-y-3">
           <div class="flex justify-between items-center text-xs">
             <span class="text-slate-400 font-medium" id="analysisProgressText">Iniciando análise semântica...</span>
@@ -165,8 +144,6 @@
             <div id="analysisProgressBar" class="bg-violet-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
           </div>
         </div>
-
-        <!-- Console -->
         <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-2">
           <div class="flex items-center justify-between border-b border-slate-800 pb-2">
             <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
@@ -179,8 +156,6 @@
             <div class="text-slate-600">Aguardando início do escaneamento do código de raspagem...</div>
           </div>
         </div>
-
-        <!-- Category filters + search -->
         <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div class="flex flex-wrap gap-2" id="categoryFilterContainer"></div>
           <div class="relative w-full sm:w-72">
@@ -188,20 +163,15 @@
               class="w-full bg-slate-950 border border-slate-900 focus:border-slate-800 rounded-lg px-3 py-1.5 text-sm text-slate-200 outline-none">
           </div>
         </div>
-
-        <!-- Categorized grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="categorizedGrid"></div>
-
       </div>
     </section>
   </main>
-
   <footer class="border-t border-slate-900 py-6 text-center text-xs text-slate-500">
-    <div class="max-w-7xl mx-auto px-6">
+    <div class="w-full px-6">
       <p>&copy; 2026 WhatsApp Chat Parser. Ferramenta de processamento local.</p>
     </div>
   </footer>
-
   <script src="popup.js"></script>
 </body>
 </html>

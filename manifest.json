@@ -10,7 +10,6 @@
     "https://*.mercadolibre.com/*"
   ],
   "action": {
-    "default_popup": "popup.html",
     "default_title": "WhatsApp Chat Parser"
   },
   "background": {
