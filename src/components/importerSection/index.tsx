@@ -1,28 +1,35 @@
 import { ChangeEvent, useRef } from 'react'
-import { Typography } from '@mui/material'
 import { CloudUpload } from '@mui/icons-material'
-import { parseWhatsAppDump } from '../../services/whatsappParser'
-import { useAppStore } from '../../store/appStore'
+import { Typography } from '@mui/material'
+
+import { useWhatsAppActions } from '../../hooks/useWhatsAppActions'
+
 import { DropzoneContainer, UploadBox } from './styles'
 
 export const ImporterSection = () => {
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const setParsedData = useAppStore((state) => state.setParsedData)
-  const toggleImport = useAppStore((state) => state.toggleImport)
+  
+  const { handleImportText } = useWhatsAppActions()
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
-    if (!file) return
+    
+    if (!file) {
+      return
+    }
 
     const reader = new FileReader()
+    
     reader.onload = (e) => {
       const content = e.target?.result as string
-      if (!content) return
       
-      const { numbers, products } = parseWhatsAppDump(content)
-      setParsedData(numbers, products)
-      toggleImport()
+      if (!content) {
+        return
+      }
+      
+      handleImportText(content)
     }
+    
     reader.readAsText(file)
   }
 
