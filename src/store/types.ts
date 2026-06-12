@@ -20,8 +20,8 @@ export interface Product {
   price: string
   link: string
   categorized: CategorizedData | null
+  isScraping?: boolean
   isAnalyzing: boolean
-  analyzed?: boolean
   error: string | null
   type: 'coupon' | 'product'
   provider: string

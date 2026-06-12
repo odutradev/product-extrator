@@ -1,12 +1,12 @@
-import { ContentCopy, DeleteOutline, TravelExplore, ErrorOutline, NavigateNext } from '@mui/icons-material'
 import { Typography, Box, Link, IconButton, CircularProgress, Tooltip, Breadcrumbs } from '@mui/material'
+import { ContentCopy, DeleteOutline, TravelExplore, ErrorOutline, NavigateNext } from '@mui/icons-material'
 
 import { CardWrapper, CardBody, CardActionBar } from './styles'
 
 import type { ProductCardProps } from './types'
 
 export const ProductCard = ({ product, onScrape, onCopy, onRemove }: ProductCardProps) => {
-  const { id, provider, title, price, link, categorized, isAnalyzing, error } = product
+  const { id, provider, title, price, link, categorized, isScraping, isAnalyzing, error } = product
   const breadcrumbs = categorized?.breadcrumbsWithLinks ?? []
 
   return (
@@ -23,25 +23,34 @@ export const ProductCard = ({ product, onScrape, onCopy, onRemove }: ProductCard
           </Typography>
         )}
         {breadcrumbs.length > 0 && (
-          <Box mt={1.5} display="flex" alignItems="center">
+          <Box mt={1.5}>
             <Breadcrumbs
-              separator={<NavigateNext sx={{ fontSize: 14, color: 'text.secondary' }} />}
+              separator={<NavigateNext sx={{ fontSize: 12, color: 'text.secondary' }} />}
               sx={{
                 '& .MuiBreadcrumbs-ol': {
-                  flexWrap: 'nowrap',
-                  overflow: 'hidden'
+                  flexWrap: 'wrap !important'
+                },
+                '& .MuiBreadcrumbs-li': {
+                  marginBottom: '4px'
                 }
               }}
             >
               {breadcrumbs.map((crumb) => (
-                <Typography
+                <Link
                   key={crumb.name}
+                  href={crumb.url || '#'}
+                  target="_blank"
+                  rel="noopener"
+                  underline="hover"
                   variant="caption"
-                  color={crumb.mainCategory ? 'primary' : 'text.secondary'}
-                  sx={{ whiteSpace: 'nowrap', fontSize: '0.75rem' }}
+                  sx={{
+                    color: crumb.mainCategory ? 'primary.main' : 'text.secondary',
+                    fontSize: '0.75rem',
+                    fontWeight: crumb.mainCategory ? 600 : 400
+                  }}
                 >
                   {crumb.name}
-                </Typography>
+                </Link>
               ))}
             </Breadcrumbs>
           </Box>
@@ -61,8 +70,8 @@ export const ProductCard = ({ product, onScrape, onCopy, onRemove }: ProductCard
       <CardActionBar>
         <Tooltip title="Raspar produto individualmente">
           <span>
-            <IconButton size="small" color="secondary" onClick={() => onScrape(id)} disabled={isAnalyzing}>
-              {isAnalyzing
+            <IconButton size="small" color="secondary" onClick={() => onScrape(id)} disabled={isScraping}>
+              {isScraping
                 ? <CircularProgress size={14} color="secondary" />
                 : <TravelExplore fontSize="small" />
               }

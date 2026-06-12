@@ -125,36 +125,39 @@ export const useWhatsAppActions = () => {
   }, [addLog])
 
   const analyzeSingleProduct = useCallback(async (id: string) => {
-    const product = parsedProducts.find((p) => p.id === id)
+    const currentProducts = useAppStore.getState().parsedProducts
+    const product = currentProducts.find((p) => p.id === id)
 
     if (!product) return
 
-    const updatedProducts = parsedProducts.map((p) =>
-      p.id === id ? { ...p, isAnalyzing: true } : p
+    const updatedProducts = currentProducts.map((p) =>
+      p.id === id ? { ...p, isScraping: true } : p
     )
-
-    setParsedData(parsedNumbers, updatedProducts)
+    setParsedData(useAppStore.getState().parsedNumbers, updatedProducts)
     addLog(`Iniciando raspagem individual para: "${product.title}"`)
 
     try {
       const analysis = await sendScrapeRequest(product.link)
-      const finalProducts = updatedProducts.map((p) =>
-        p.id === id ? { ...p, categorized: analysis, error: null, isAnalyzing: false, analyzed: true } : p
+      const freshProducts = useAppStore.getState().parsedProducts
+      const finalProducts = freshProducts.map((p) =>
+        p.id === id ? { ...p, categorized: analysis, error: null, isScraping: false, isAnalyzing: true } : p
       )
-      setParsedData(parsedNumbers, finalProducts)
+      setParsedData(useAppStore.getState().parsedNumbers, finalProducts)
       addLog(`Sucesso na extração de: ${product.title}`)
     } catch (e) {
       const errorMsg = e instanceof Error ? e.message : String(e)
-      const finalProducts = updatedProducts.map((p) =>
-        p.id === id ? { ...p, error: errorMsg, isAnalyzing: false, analyzed: false } : p
+      const freshProducts = useAppStore.getState().parsedProducts
+      const finalProducts = freshProducts.map((p) =>
+        p.id === id ? { ...p, error: errorMsg, isScraping: false, isAnalyzing: false } : p
       )
-      setParsedData(parsedNumbers, finalProducts)
+      setParsedData(useAppStore.getState().parsedNumbers, finalProducts)
       addLog(`Falha na extração de: "${product.title}" | ${errorMsg}`)
     }
-  }, [parsedNumbers, parsedProducts, setParsedData, addLog, sendScrapeRequest])
+  }, [setParsedData, addLog, sendScrapeRequest])
 
   const analyzeAllProducts = useCallback(async () => {
-    const queue = parsedProducts.filter((p) => p.type === 'product' && !p.categorized && p.provider === 'Mercado Livre')
+    const currentProducts = useAppStore.getState().parsedProducts
+    const queue = currentProducts.filter((p) => p.type === 'product' && !p.categorized && p.provider === 'Mercado Livre')
 
     if (queue.length === 0) {
       addLog('Sem novos produtos compatíveis para análise')
@@ -164,36 +167,36 @@ export const useWhatsAppActions = () => {
     setIsAnalyzingAll(true)
     setAnalysisProgress({ current: 0, total: queue.length })
 
-    let currentProductsState = [...parsedProducts]
-
     for (let i = 0; i < queue.length; i++) {
       const product = queue[i]
       setAnalysisProgress({ current: i + 1, total: queue.length })
 
-      currentProductsState = currentProductsState.map((p) =>
-        p.id === product.id ? { ...p, isAnalyzing: true } : p
+      const freshProductsBefore = useAppStore.getState().parsedProducts
+      const productsWithLoading = freshProductsBefore.map((p) =>
+        p.id === product.id ? { ...p, isScraping: true } : p
       )
-
-      setParsedData(parsedNumbers, currentProductsState)
+      setParsedData(useAppStore.getState().parsedNumbers, productsWithLoading)
 
       try {
         const analysis = await sendScrapeRequest(product.link)
-        currentProductsState = currentProductsState.map((p) =>
-          p.id === product.id ? { ...p, categorized: analysis, error: null, isAnalyzing: false, analyzed: true } : p
+        const freshProductsAfter = useAppStore.getState().parsedProducts
+        const productsWithSuccess = freshProductsAfter.map((p) =>
+          p.id === product.id ? { ...p, categorized: analysis, error: null, isScraping: false, isAnalyzing: true } : p
         )
+        setParsedData(useAppStore.getState().parsedNumbers, productsWithSuccess)
       } catch (e) {
         const errorMsg = e instanceof Error ? e.message : String(e)
-        currentProductsState = currentProductsState.map((p) =>
-          p.id === product.id ? { ...p, error: errorMsg, isAnalyzing: false, analyzed: false } : p
+        const freshProductsAfter = useAppStore.getState().parsedProducts
+        const productsWithError = freshProductsAfter.map((p) =>
+          p.id === product.id ? { ...p, error: errorMsg, isScraping: false, isAnalyzing: false } : p
         )
+        setParsedData(useAppStore.getState().parsedNumbers, productsWithError)
       }
-
-      setParsedData(parsedNumbers, currentProductsState)
     }
 
     setIsAnalyzingAll(false)
     addLog('Mapeamento em lote finalizado!')
-  }, [parsedNumbers, parsedProducts, setParsedData, addLog, sendScrapeRequest])
+  }, [setParsedData, addLog, sendScrapeRequest])
 
   const parsePrice = useCallback((priceStr: string | null | undefined): number => {
     if (!priceStr) return 0
