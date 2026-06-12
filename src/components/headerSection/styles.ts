@@ -2,10 +2,10 @@ import { styled } from '@mui/material/styles'
 import { Box } from '@mui/material'
 
 export const HeaderContainer = styled(Box)(({ theme }) => ({
-  backgroundColor: theme.palette.background.paper,
+  backgroundColor: theme.palette.background.default,
   borderBottom: `1px solid ${theme.palette.divider}`,
   justifyContent: 'space-between',
-  padding: theme.spacing(2, 3),
+  padding: theme.spacing(2, 4),
   alignItems: 'center',
   position: 'sticky',
   display: 'flex',

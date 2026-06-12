@@ -11,6 +11,7 @@ export const ActionBar = styled(Box)(({ theme }) => ({
 }))
 
 export const CouponCard = styled(Card)(({ theme }) => ({
-  borderColor: theme.palette.warning.dark,
+  backgroundColor: '#18181b',
+  border: `1px solid ${theme.palette.divider}`,
   height: '100%'
 }))

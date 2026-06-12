@@ -10,7 +10,7 @@ export const AppMainContainer = styled(Box)({
 
 export const AppContentContainer = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.background.default,
-  padding: theme.spacing(3),
+  padding: theme.spacing(4),
   overflowY: 'auto',
   flexGrow: 1
 }))

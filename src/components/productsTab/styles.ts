@@ -11,20 +11,22 @@ export const ActionBar = styled(Box)(({ theme }) => ({
 }))
 
 export const ScrapeControlBox = styled(Box)(({ theme }) => ({
-  backgroundColor: 'rgba(15, 23, 42, 0.4)',
+  backgroundColor: '#18181b',
   border: `1px solid ${theme.palette.divider}`,
   borderRadius: theme.shape.borderRadius,
-  marginBottom: theme.spacing(4),
+  marginBottom: theme.spacing(3),
   justifyContent: 'space-between',
-  padding: theme.spacing(3),
+  padding: theme.spacing(2.5, 3),
   gap: theme.spacing(2),
   alignItems: 'center',
   flexWrap: 'wrap',
   display: 'flex'
 }))
 
-export const ProductCard = styled(Card)({
+export const ProductCard = styled(Card)(({ theme }) => ({
+  backgroundColor: '#18181b',
+  border: `1px solid ${theme.palette.divider}`,
   flexDirection: 'column',
   display: 'flex',
   height: '100%'
-})
+}))

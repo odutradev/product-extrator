@@ -11,7 +11,7 @@ export const ActionBar = styled(Box)(({ theme }) => ({
 }))
 
 export const TableContainerBox = styled(Box)(({ theme }) => ({
-  backgroundColor: theme.palette.background.paper,
+  backgroundColor: theme.palette.background.default,
   border: `1px solid ${theme.palette.divider}`,
   borderRadius: theme.shape.borderRadius,
   overflowX: 'auto'

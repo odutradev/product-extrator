@@ -1,5 +1,5 @@
-import { styled } from '@mui/material/styles'
 import { Box, Typography } from '@mui/material'
+import { styled } from '@mui/material/styles'
 
 export const TerminalContainer = styled(Box)(({ theme }) => ({
   border: `1px solid ${theme.palette.divider}`,
@@ -8,20 +8,20 @@ export const TerminalContainer = styled(Box)(({ theme }) => ({
   padding: theme.spacing(2),
   flexDirection: 'column',
   gap: theme.spacing(2),
-  backgroundColor: '#000',
+  backgroundColor: '#09090b',
   display: 'flex'
 }))
 
 export const TerminalHeader = styled(Box)(({ theme }) => ({
   borderBottom: `1px solid ${theme.palette.divider}`,
-  paddingBottom: theme.spacing(1),
+  paddingBottom: theme.spacing(1.5),
   justifyContent: 'space-between',
   alignItems: 'center',
   display: 'flex'
 }))
 
 export const LogsContainer = styled(Box)(({ theme }) => ({
-  gap: theme.spacing(0.5),
+  gap: theme.spacing(0.75),
   flexDirection: 'column',
   overflowY: 'auto',
   maxHeight: 200,

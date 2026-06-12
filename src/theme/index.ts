@@ -4,17 +4,50 @@ export const darkTheme = createTheme({
   palette: {
     mode: 'dark',
     background: {
-      default: '#020617',
-      paper: '#0f172a'
+      default: '#09090b',
+      paper: '#09090b'
     },
     primary: {
-      main: '#10b981'
+      main: '#fafafa'
     },
     secondary: {
-      main: '#8b5cf6'
-    }
+      main: '#a1a1aa'
+    },
+    text: {
+      primary: '#fafafa',
+      secondary: '#a1a1aa'
+    },
+    divider: '#27272a'
   },
   typography: {
-    fontFamily: '"Inter", sans-serif'
+    fontFamily: '"Inter", sans-serif',
+    button: {
+      textTransform: 'none',
+      fontWeight: 500
+    }
+  },
+  shape: {
+    borderRadius: 6
+  },
+  components: {
+    MuiButton: {
+      defaultProps: {
+        disableElevation: true
+      },
+      styleOverrides: {
+        root: {
+          borderRadius: '6px',
+          fontWeight: 500
+        }
+      }
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#18181b',
+          borderColor: '#27272a'
+        }
+      }
+    }
   }
 })
