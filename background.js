@@ -70,20 +70,20 @@ const scrapeProductData = async (tabId) => {
       const descEl = document.querySelector('.ui-pdp-description__content');
       const description = descEl?.textContent.trim().slice(0, 220) ?? '';
 
-      const category = breadcrumbsWithLinks[0]?.name ?? 'E-commerce';
-      const subcategory = breadcrumbsWithLinks[1]?.name ?? category;
+      const mainCategory = breadcrumbsWithLinks[breadcrumbsWithLinks.length - 1]?.name ?? 'E-commerce';
 
-      return {
+      const payload = {
         title,
         price,
         brand,
         store,
         description,
-        category,
-        subcategory,
-        breadcrumbs: breadcrumbsWithLinks.map((b) => b.name),
+        mainCategory,
         breadcrumbsWithLinks
       };
+
+      console.log(payload);
+      return payload;
     }
   });
 
@@ -123,6 +123,7 @@ const scrapeProductFromUrl = async (affiliateUrl) => {
     const data = await scrapeProductData(tabId);
     if (!data) throw new Error('Nenhum dado extraído da página do produto');
 
+    console.log(data);
     return { success: true, data };
   } catch (error) {
     return { success: false, error: error.message };

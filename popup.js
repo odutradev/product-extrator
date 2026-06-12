@@ -107,6 +107,7 @@ const sendScrapeRequest = (targetUrl) =>
         return;
       }
 
+      console.log(response.data);
       addLog(`Metadados extraídos com sucesso em ${elapsed}s!`, 'success');
       resolve(response.data);
     });
@@ -267,14 +268,13 @@ const renderCategorized = () => {
   const query = searchCategorized.value.toLowerCase();
   const filtered = parsedProducts.filter((item) => {
     if (!item.categorized) return false;
-    const { title, category, subcategory, brand } = item.categorized;
+    const { title, mainCategory, brand } = item.categorized;
     const matchesQuery =
       title.toLowerCase().includes(query) ||
-      category.toLowerCase().includes(query) ||
-      subcategory.toLowerCase().includes(query) ||
+      mainCategory.toLowerCase().includes(query) ||
       (brand && brand.toLowerCase().includes(query));
     if (selectedCategoryFilter === 'Todos') return matchesQuery;
-    return matchesQuery && item.categorized.category === selectedCategoryFilter;
+    return matchesQuery && item.categorized.mainCategory === selectedCategoryFilter;
   });
 
   if (filtered.length === 0) {
@@ -291,29 +291,29 @@ const renderCategorized = () => {
 
   categorizedGrid.innerHTML = filtered
     .map((item) => {
-      const catKey = item.categorized.category.toLowerCase();
+      const catKey = item.categorized.mainCategory.toLowerCase();
       const badgeColor = categoryColors[catKey] ?? categoryColors['default'];
       return `
         <div class="bg-slate-900/40 border border-slate-900 hover:border-slate-800 p-5 rounded-2xl flex flex-col justify-between gap-4 transition-all duration-300 relative group overflow-hidden">
           <div class="space-y-3">
             <div class="flex items-center justify-between gap-2 flex-wrap">
-              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${badgeColor} uppercase tracking-wider">${item.categorized.category}</span>
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${badgeColor} uppercase tracking-wider">${item.categorized.mainCategory}</span>
               <span class="text-[10px] font-semibold text-slate-500 font-mono">${item.categorized.store || 'E-commerce'}</span>
             </div>
             <div class="space-y-1">
               <h3 class="font-bold text-slate-100 text-sm leading-snug group-hover:text-violet-400 transition-colors">${item.categorized.title}</h3>
               ${
-                item.categorized.breadcrumbs?.length > 0
-                  ? `<div class="flex items-center flex-wrap gap-1 text-[10px] text-slate-400 bg-slate-950/50 px-2 py-1.5 rounded-lg border border-slate-900/60 mt-1.5 font-medium">
-                      ${item.categorized.breadcrumbs
+                item.categorized.breadcrumbsWithLinks?.length > 0
+                  ? `<div class="flex items-center flex-wrap gap-1 text-[10px] text-slate-400 bg-slate-950/50 px-2.5 py-1.5 rounded-lg border border-slate-900/60 mt-1.5 font-medium">
+                      ${item.categorized.breadcrumbsWithLinks
                         .map(
                           (b, idx) => `
-                          <span class="${idx === item.categorized.breadcrumbs.length - 1 ? 'text-violet-400 font-semibold' : ''}">${b}</span>
-                          ${idx < item.categorized.breadcrumbs.length - 1 ? `<svg class="w-2.5 h-2.5 text-slate-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>` : ''}`
+                          <a href="${b.url}" target="_blank" rel="noopener noreferrer" class="${idx === item.categorized.breadcrumbsWithLinks.length - 1 ? 'text-violet-400 font-semibold hover:text-violet-300' : 'hover:text-slate-300'} transition-colors">${b.name}</a>
+                          ${idx < item.categorized.breadcrumbsWithLinks.length - 1 ? `<svg class="w-2.5 h-2.5 text-slate-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>` : ''}`
                         )
                         .join('')}
                     </div>`
-                  : `<p class="text-xs text-slate-400 font-medium">Subcategoria: <span class="text-slate-300">${item.categorized.subcategory}</span></p>`
+                  : ''
               }
             </div>
             <p class="text-xs text-slate-500 leading-relaxed">${item.categorized.description || 'Nenhuma descrição recuperada.'}</p>
@@ -340,7 +340,7 @@ const renderCategorized = () => {
 
 const renderCategoryFilters = () => {
   const categories = new Set(
-    parsedProducts.filter((p) => p.categorized?.category).map((p) => p.categorized.category)
+    parsedProducts.filter((p) => p.categorized?.mainCategory).map((p) => p.categorized.mainCategory)
   );
   const uniqueCategories = ['Todos', ...Array.from(categories)];
 

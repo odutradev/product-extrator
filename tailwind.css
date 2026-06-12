@@ -153,11 +153,14 @@ button, [role='button'] { cursor: pointer; }
 .rounded-full { border-radius: 9999px; }
 .bg-slate-900 { background-color: #0f172a; }
 .bg-slate-950 { background-color: #020617; }
+.bg-emerald-500 { background-color: #10b981; }
 .bg-emerald-600 { background-color: #059669; }
+.bg-blue-500 { background-color: #3b82f6; }
 .bg-blue-600 { background-color: #2563eb; }
 .bg-violet-600 { background-color: #7c3aed; }
 .bg-violet-500 { background-color: #8b5cf6; }
 .bg-amber-500 { background-color: #f59e0b; }
+.bg-red-500 { background-color: #ef4444; }
 .bg-slate-900\/20 { background-color: rgba(15, 23, 42, 0.2); }
 .bg-slate-900\/30 { background-color: rgba(15, 23, 42, 0.3); }
 .bg-slate-900\/40 { background-color: rgba(15, 23, 42, 0.4); }
@@ -242,11 +245,32 @@ button, [role='button'] { cursor: pointer; }
 .group:hover .group-hover\:text-violet-400 { color: #a78bfa; }
 .last\:border-0:last-child { border-width: 0; }
 .disabled\:opacity-60:disabled { opacity: 0.6; }
+.text-slate-100 { color: #f1f5f9; }
+.text-slate-200 { color: #e2e8f0; }
+.text-slate-300 { color: #cbd5e1; }
+.text-slate-400 { color: #94a3b8; }
+.text-slate-500 { color: #64748b; }
+.text-slate-600 { color: #475569; }
+.text-emerald-400 { color: #34d399; }
+.text-emerald-950 { color: #022c22; }
+.text-blue-400 { color: #60a5fa; }
+.text-blue-950 { color: #172554; }
+.text-violet-400 { color: #a78bfa; }
+.text-violet-300 { color: #c4b5fd; }
+.text-red-400 { color: #f87171; }
+.text-amber-400 { color: #fbbf24; }
+.text-indigo-400 { color: #818cf8; }
+.text-pink-400 { color: #f472b6; }
+.text-rose-400 { color: #fb7185; }
+.text-sky-400 { color: #38bdf8; }
+.text-purple-400 { color: #c084fc; }
+.text-cyan-400 { color: #22d3ee; }
+.text-white { color: #ffffff; }
 @media (min-width: 640px) {
   .sm\:flex-row { flex-direction: row; }
   .sm\:flex-col { flex-direction: column; }
   .sm\:items-center { align-items: center; }
-  .sm\:justify-between { sm-justify-content: space-between; }
+  .sm\:justify-between { justify-content: space-between; }
   .sm\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .sm\:p-6 { padding: 1.5rem; }
   .sm\:w-auto { width: auto; }
