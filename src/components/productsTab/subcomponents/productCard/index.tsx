@@ -6,7 +6,7 @@ import { CardWrapper, CardBody, CardActionBar } from './styles'
 import type { ProductCardProps } from './types'
 
 export const ProductCard = ({ product, onScrape, onCopy, onRemove }: ProductCardProps) => {
-  const { id, provider, title, price, link, categorized, isScraping, isAnalyzing, error } = product
+  const { id, provider, title, price, link, categorized, isScraping, error } = product
   const breadcrumbs = categorized?.breadcrumbsWithLinks ?? []
 
   return (
