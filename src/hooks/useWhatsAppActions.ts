@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useRef } from 'react'
 
 import { parseWhatsAppDump } from '../services/whatsappParser'
 import { useAppStore } from '../store/appStore'
@@ -10,6 +10,7 @@ export const useWhatsAppActions = () => {
 
   const [isAnalyzingAll, setIsAnalyzingAll] = useState(false)
   const [analysisProgress, setAnalysisProgress] = useState({ current: 0, total: 0 })
+  const cancelRef = useRef(false)
 
   const handleImportText = useCallback((content: string) => {
     const { numbers: newNumbers, products: newProducts } = parseWhatsAppDump(content)
@@ -18,7 +19,7 @@ export const useWhatsAppActions = () => {
     const mergedProducts = Array.from(new Map([...parsedProducts, ...newProducts].map((item) => [item.link, item])).values())
 
     setParsedData(mergedNumbers, mergedProducts)
-    addLog(`Importação concluída: ${newNumbers.length} contatos, ${newProducts.length} itens processados.`)
+    addLog(`Importação concluída: ${newNumbers.length} contactos, ${newProducts.length} itens processados.`)
     toggleImport()
   }, [parsedNumbers, parsedProducts, setParsedData, addLog, toggleImport])
 
@@ -42,13 +43,13 @@ export const useWhatsAppActions = () => {
   const copyNumbersToClipboard = useCallback(async () => {
     const text = parsedNumbers.map((item) => item.clean).join('\n')
     await navigator.clipboard.writeText(text)
-    addLog(`Cópia de ${parsedNumbers.length} contatos realizada com sucesso`)
+    addLog(`Cópia de ${parsedNumbers.length} contactos realizada com sucesso`)
   }, [parsedNumbers, addLog])
 
   const exportNumbersTxt = useCallback(() => {
     const content = parsedNumbers.map((item) => item.clean).join('\n')
     downloadBlob(content, 'numeros_whatsapp.txt', 'text/plain;charset=utf-8')
-    addLog('Arquivo TXT de contatos exportado')
+    addLog('Ficheiro TXT de contactos exportado')
   }, [parsedNumbers, downloadBlob, addLog])
 
   const exportNumbersCsv = useCallback(() => {
@@ -57,7 +58,7 @@ export const useWhatsAppActions = () => {
       ...parsedNumbers.map((item) => [item.ddd, item.original, item.clean, item.line])
     ]
     downloadBlob(buildCsv(rows), 'numeros_whatsapp.csv', 'text/csv;charset=utf-8')
-    addLog('Arquivo CSV de contatos exportado')
+    addLog('Ficheiro CSV de contactos exportado')
   }, [parsedNumbers, downloadBlob, buildCsv, addLog])
 
   const exportProductsCsv = useCallback(() => {
@@ -68,7 +69,7 @@ export const useWhatsAppActions = () => {
         .map((p) => [p.provider, p.title, p.link, p.price || '', p.categorized?.price || ''])
     ]
     downloadBlob(buildCsv(rows), 'produtos_whatsapp.csv', 'text/csv;charset=utf-8')
-    addLog('Arquivo CSV de produtos exportado')
+    addLog('Ficheiro CSV de produtos exportado')
   }, [parsedProducts, downloadBlob, buildCsv, addLog])
 
   const copyProductToClipboard = useCallback(async (id: string) => {
@@ -80,7 +81,7 @@ export const useWhatsAppActions = () => {
 
   const clearNumbers = useCallback(() => {
     setParsedData([], parsedProducts)
-    addLog('Banco de contatos limpo')
+    addLog('Banco de contactos limpo')
   }, [parsedProducts, setParsedData, addLog])
 
   const clearProducts = useCallback(() => {
@@ -92,7 +93,7 @@ export const useWhatsAppActions = () => {
   const clearCoupons = useCallback(() => {
     const nonCoupons = parsedProducts.filter((p) => p.type !== 'coupon')
     setParsedData(parsedNumbers, nonCoupons)
-    addLog('Banco de cupons limpo')
+    addLog('Banco de cupões limpo')
   }, [parsedNumbers, parsedProducts, setParsedData, addLog])
 
   const removeProduct = useCallback((id: string) => {
@@ -103,7 +104,7 @@ export const useWhatsAppActions = () => {
 
   const sendScrapeRequest = useCallback((targetUrl: string): Promise<CategorizedData> => {
     return new Promise((resolve, reject) => {
-      addLog(`Enviando solicitação de raspagem para: ${targetUrl}`)
+      addLog(`A enviar solicitação de raspagem para: ${targetUrl}`)
 
       chrome.runtime.sendMessage({ action: 'scrapeProduct', url: targetUrl }, (response) => {
         if (chrome.runtime.lastError) {
@@ -124,6 +125,11 @@ export const useWhatsAppActions = () => {
     })
   }, [addLog])
 
+  const stopAllProducts = useCallback(() => {
+    cancelRef.current = true
+    addLog('Pedido de interrupção enviado pelo utilizador...')
+  }, [addLog])
+
   const analyzeSingleProduct = useCallback(async (id: string) => {
     const currentProducts = useAppStore.getState().parsedProducts
     const product = currentProducts.find((p) => p.id === id)
@@ -134,7 +140,7 @@ export const useWhatsAppActions = () => {
       p.id === id ? { ...p, isScraping: true } : p
     )
     setParsedData(useAppStore.getState().parsedNumbers, updatedProducts)
-    addLog(`Iniciando raspagem individual para: "${product.title}"`)
+    addLog(`A iniciar raspagem individual para: "${product.title}"`)
 
     try {
       const analysis = await sendScrapeRequest(product.link)
@@ -164,10 +170,16 @@ export const useWhatsAppActions = () => {
       return
     }
 
+    cancelRef.current = false
     setIsAnalyzingAll(true)
     setAnalysisProgress({ current: 0, total: queue.length })
 
     for (let i = 0; i < queue.length; i++) {
+      if (cancelRef.current) {
+        addLog('Auto-scrape interrompido pelo utilizador.')
+        break
+      }
+
       const product = queue[i]
       setAnalysisProgress({ current: i + 1, total: queue.length })
 
@@ -195,7 +207,11 @@ export const useWhatsAppActions = () => {
     }
 
     setIsAnalyzingAll(false)
-    addLog('Mapeamento em lote finalizado!')
+    if (cancelRef.current) {
+      addLog('Processamento em lote cancelado.')
+    } else {
+      addLog('Mapeamento em lote finalizado!')
+    }
   }, [setParsedData, addLog, sendScrapeRequest])
 
   const parsePrice = useCallback((priceStr: string | null | undefined): number => {
@@ -321,6 +337,7 @@ export const useWhatsAppActions = () => {
     clearCoupons,
     removeProduct,
     analyzeSingleProduct,
-    analyzeAllProducts
+    analyzeAllProducts,
+    stopAllProducts
   }
 }

@@ -1,5 +1,5 @@
 import { Grid, TextField, Button, Box, Typography, LinearProgress, ToggleButtonGroup, ToggleButton } from '@mui/material'
-import { PlayArrow, Download, DeleteSweep } from '@mui/icons-material'
+import { PlayArrow, Download, DeleteSweep, Stop } from '@mui/icons-material'
 import { useState } from 'react'
 
 import { useWhatsAppActions } from '../../hooks/useWhatsAppActions'
@@ -12,7 +12,17 @@ export const ProductsTab = () => {
   const [selectedProvider, setSelectedProvider] = useState('Todos')
 
   const parsedProducts = useAppStore((state) => state.parsedProducts)
-  const { isAnalyzingAll, analysisProgress, analyzeAllProducts, exportProductsCsv, clearProducts, analyzeSingleProduct, copyProductToClipboard, removeProduct } = useWhatsAppActions()
+  const { 
+    isAnalyzingAll, 
+    analysisProgress, 
+    analyzeAllProducts, 
+    stopAllProducts,
+    exportProductsCsv, 
+    clearProducts, 
+    analyzeSingleProduct, 
+    copyProductToClipboard, 
+    removeProduct 
+  } = useWhatsAppActions()
 
   const providerOrder: Record<string, number> = {
     'Mercado Livre': 1,
@@ -54,7 +64,7 @@ export const ProductsTab = () => {
         <Box display="flex" gap={2} flexWrap="wrap" alignItems="center">
           <TextField
             size="small"
-            placeholder="Buscar por título ou loja..."
+            placeholder="Procurar por título ou loja..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             variant="outlined"
@@ -82,28 +92,30 @@ export const ProductsTab = () => {
       <ScrapeControlBox>
         <Box>
           <Typography variant="subtitle1" fontWeight="bold">Enriquecimento de Dados Web</Typography>
-          <Typography variant="body2" color="text.secondary">Varre o código fonte do produto em segundo plano para extrair preços.</Typography>
+          <Typography variant="body2" color="text.secondary">Varre o código-fonte do produto em segundo plano para extrair preços.</Typography>
         </Box>
         <Button
           variant="contained"
-          color="secondary"
-          startIcon={<PlayArrow />}
-          onClick={analyzeAllProducts}
-          disabled={isAnalyzingAll}
+          color={isAnalyzingAll ? "error" : "secondary"}
+          startIcon={isAnalyzingAll ? <Stop /> : <PlayArrow />}
+          onClick={isAnalyzingAll ? stopAllProducts : analyzeAllProducts}
         >
-          {isAnalyzingAll ? 'Analisando...' : 'Auto-Scrape Todos (ML)'}
+          {isAnalyzingAll ? 'Parar Auto-Scrape' : 'Auto-Scrape Todos (ML)'}
         </Button>
       </ScrapeControlBox>
 
       {isAnalyzingAll && (
-        <Box mb={4}>
-          <Box display="flex" justifyContent="space-between" mb={1}>
-            <Typography variant="body2" color="text.secondary">
-              Analisando item {analysisProgress.current} de {analysisProgress.total}...
+        <Box mb={4} p={2.5} sx={{ backgroundColor: '#18181b', borderRadius: 1, border: '1px solid #27272a' }}>
+          <Box display="flex" justifyContent="space-between" mb={1} alignItems="center">
+            <Typography variant="body2" color="text.secondary" fontWeight="bold">
+              Progresso do Auto-Scrape
             </Typography>
             <Typography variant="body2" color="secondary" fontWeight="bold">{progressPercent}%</Typography>
           </Box>
-          <LinearProgress variant="determinate" value={progressPercent} color="secondary" />
+          <Typography variant="caption" color="text.secondary" display="block" mb={2}>
+            A processar o item {analysisProgress.current} de {analysisProgress.total}...
+          </Typography>
+          <LinearProgress variant="determinate" value={progressPercent} color="secondary" sx={{ height: 6, borderRadius: 3 }} />
         </Box>
       )}
 
