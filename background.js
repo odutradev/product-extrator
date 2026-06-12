@@ -42,10 +42,21 @@ const scrapeProductData = async (tabId) => {
     target: { tabId },
     func: () => {
       const breadcrumbAnchors = [...document.querySelectorAll('.andes-breadcrumb__link')];
-      const breadcrumbsWithLinks = breadcrumbAnchors.map((anchor) => ({
+      let breadcrumbsWithLinks = breadcrumbAnchors.map((anchor, index, arr) => ({
         name: anchor.getAttribute('title') ?? anchor.textContent.trim(),
-        url: anchor.href
+        url: anchor.href,
+        mainCategory: index === arr.length - 1
       }));
+
+      if (breadcrumbsWithLinks.length === 0) {
+        breadcrumbsWithLinks = [
+          {
+            name: 'E-commerce',
+            url: '#',
+            mainCategory: true
+          }
+        ];
+      }
 
       const titleEl = document.querySelector('h1.ui-pdp-title, h1[class*="title"]');
       const title = titleEl?.textContent.trim() ?? document.title;
@@ -70,19 +81,15 @@ const scrapeProductData = async (tabId) => {
       const descEl = document.querySelector('.ui-pdp-description__content');
       const description = descEl?.textContent.trim().slice(0, 220) ?? '';
 
-      const mainCategory = breadcrumbsWithLinks[breadcrumbsWithLinks.length - 1]?.name ?? 'E-commerce';
-
       const payload = {
         title,
         price,
         brand,
         store,
         description,
-        mainCategory,
         breadcrumbsWithLinks
       };
 
-      console.log(payload);
       return payload;
     }
   });
@@ -123,7 +130,6 @@ const scrapeProductFromUrl = async (affiliateUrl) => {
     const data = await scrapeProductData(tabId);
     if (!data) throw new Error('Nenhum dado extraído da página do produto');
 
-    console.log(data);
     return { success: true, data };
   } catch (error) {
     return { success: false, error: error.message };

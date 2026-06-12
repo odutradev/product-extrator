@@ -55,6 +55,11 @@ const categoryColors = {
   'default': 'bg-slate-500/10 text-slate-400 border-slate-500/20'
 };
 
+const getMainCategoryName = (item) => {
+  const mainCatObj = item.categorized?.breadcrumbsWithLinks?.find((b) => b.mainCategory);
+  return mainCatObj?.name ?? 'E-commerce';
+};
+
 const addLog = (message, type = 'info') => {
   const time = new Date().toLocaleTimeString();
   const colors = {
@@ -66,7 +71,9 @@ const addLog = (message, type = 'info') => {
   };
   const colorClass = colors[type] ?? 'text-slate-400';
   const placeholder = debugLogs.querySelector('.text-slate-600');
-  if (placeholder) debugLogs.innerHTML = '';
+  if (placeholder) {
+    debugLogs.innerHTML = '';
+  }
 
   const logEl = document.createElement('div');
   logEl.className = `${colorClass} py-0.5 border-b border-slate-900/30 last:border-0`;
@@ -107,7 +114,6 @@ const sendScrapeRequest = (targetUrl) =>
         return;
       }
 
-      console.log(response.data);
       addLog(`Metadados extraídos com sucesso em ${elapsed}s!`, 'success');
       resolve(response.data);
     });
@@ -172,7 +178,9 @@ const processText = (text) => {
 
       const urls = blockLines.reduce((acc, line) => {
         const match = line.match(urlRegex);
-        if (match) acc.push(match[1]);
+        if (match) {
+          acc.push(match[1]);
+        }
         return acc;
       }, []);
 
@@ -268,13 +276,14 @@ const renderCategorized = () => {
   const query = searchCategorized.value.toLowerCase();
   const filtered = parsedProducts.filter((item) => {
     if (!item.categorized) return false;
-    const { title, mainCategory, brand } = item.categorized;
+    const mainCatName = getMainCategoryName(item);
+    const { title, brand } = item.categorized;
     const matchesQuery =
       title.toLowerCase().includes(query) ||
-      mainCategory.toLowerCase().includes(query) ||
+      mainCatName.toLowerCase().includes(query) ||
       (brand && brand.toLowerCase().includes(query));
     if (selectedCategoryFilter === 'Todos') return matchesQuery;
-    return matchesQuery && item.categorized.mainCategory === selectedCategoryFilter;
+    return matchesQuery && mainCatName === selectedCategoryFilter;
   });
 
   if (filtered.length === 0) {
@@ -291,13 +300,14 @@ const renderCategorized = () => {
 
   categorizedGrid.innerHTML = filtered
     .map((item) => {
-      const catKey = item.categorized.mainCategory.toLowerCase();
+      const mainCatName = getMainCategoryName(item);
+      const catKey = mainCatName.toLowerCase();
       const badgeColor = categoryColors[catKey] ?? categoryColors['default'];
       return `
         <div class="bg-slate-900/40 border border-slate-900 hover:border-slate-800 p-5 rounded-2xl flex flex-col justify-between gap-4 transition-all duration-300 relative group overflow-hidden">
           <div class="space-y-3">
             <div class="flex items-center justify-between gap-2 flex-wrap">
-              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${badgeColor} uppercase tracking-wider">${item.categorized.mainCategory}</span>
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${badgeColor} uppercase tracking-wider">${mainCatName}</span>
               <span class="text-[10px] font-semibold text-slate-500 font-mono">${item.categorized.store || 'E-commerce'}</span>
             </div>
             <div class="space-y-1">
@@ -308,7 +318,7 @@ const renderCategorized = () => {
                       ${item.categorized.breadcrumbsWithLinks
                         .map(
                           (b, idx) => `
-                          <a href="${b.url}" target="_blank" rel="noopener noreferrer" class="${idx === item.categorized.breadcrumbsWithLinks.length - 1 ? 'text-violet-400 font-semibold hover:text-violet-300' : 'hover:text-slate-300'} transition-colors">${b.name}</a>
+                          <a href="${b.url}" target="_blank" rel="noopener noreferrer" class="${b.mainCategory ? 'text-violet-400 font-semibold hover:text-violet-300' : 'hover:text-slate-300'} transition-colors">${b.name}</a>
                           ${idx < item.categorized.breadcrumbsWithLinks.length - 1 ? `<svg class="w-2.5 h-2.5 text-slate-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>` : ''}`
                         )
                         .join('')}
@@ -340,7 +350,9 @@ const renderCategorized = () => {
 
 const renderCategoryFilters = () => {
   const categories = new Set(
-    parsedProducts.filter((p) => p.categorized?.mainCategory).map((p) => p.categorized.mainCategory)
+    parsedProducts
+      .filter((p) => p.categorized?.breadcrumbsWithLinks)
+      .map((p) => getMainCategoryName(p))
   );
   const uniqueCategories = ['Todos', ...Array.from(categories)];
 
@@ -400,11 +412,15 @@ dropZone.addEventListener('dragleave', () => {
 dropZone.addEventListener('drop', (e) => {
   e.preventDefault();
   dropZone.classList.remove('border-slate-600', 'bg-slate-900/30');
-  if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
+  if (e.dataTransfer.files.length > 0) {
+    handleFile(e.dataTransfer.files[0]);
+  }
 });
 
 fileInput.addEventListener('change', (e) => {
-  if (e.target.files.length > 0) handleFile(e.target.files[0]);
+  if (e.target.files.length > 0) {
+    handleFile(e.target.files[0]);
+  }
 });
 
 btnClearLogs.addEventListener('click', () => {
@@ -413,17 +429,23 @@ btnClearLogs.addEventListener('click', () => {
 
 productsGrid.addEventListener('click', (e) => {
   const btn = e.target.closest('[data-analyze-id]');
-  if (btn) analyzeSingleProduct(btn.dataset.analyzeId);
+  if (btn) {
+    analyzeSingleProduct(btn.dataset.analyzeId);
+  }
 });
 
 categorizedGrid.addEventListener('click', (e) => {
   const btn = e.target.closest('[data-rescrape-id]');
-  if (btn) analyzeSingleProduct(btn.dataset.rescrapeId);
+  if (btn) {
+    analyzeSingleProduct(btn.dataset.rescrapeId);
+  }
 });
 
 categoryFilterContainer.addEventListener('click', (e) => {
   const btn = e.target.closest('[data-filter-cat]');
-  if (btn) setCategoryFilter(btn.dataset.filterCat);
+  if (btn) {
+    setCategoryFilter(btn.dataset.filterCat);
+  }
 });
 
 searchNumbers.addEventListener('input', renderNumbers);
