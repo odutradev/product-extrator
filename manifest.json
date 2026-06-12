@@ -1,9 +1,13 @@
 {
   "manifest_version": 3,
   "name": "WhatsApp Chat Parser",
-  "description": "Analisa grupos do WhatsApp e raspa dados de produtos do Mercado Livre automaticamente.",
+  "description": "Analisa grupos do WhatsApp e raspa dados de produtos",
   "version": "1.0.0",
-  "permissions": ["tabs", "scripting"],
+  "permissions": [
+    "tabs",
+    "scripting",
+    "storage"
+  ],
   "host_permissions": [
     "https://meli.la/*",
     "https://*.mercadolivre.com.br/*",
@@ -14,9 +18,10 @@
     "https://s.shopee.com.br/*"
   ],
   "action": {
-    "default_title": "WhatsApp Chat Parser"
+    "default_title": "Abrir WhatsApp Chat Parser"
   },
   "background": {
-    "service_worker": "src/background.js"
+    "service_worker": "src/background/index.ts",
+    "type": "module"
   }
 }
