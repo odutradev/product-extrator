@@ -6,7 +6,7 @@ import { useAppStore } from '../store/appStore'
 import type { CategorizedData } from '../store/types'
 
 export const useWhatsAppActions = () => {
-  const { parsedNumbers, parsedProducts, addLog, setParsedData, toggleImport } = useAppStore()
+  const { parsedNumbers, parsedProducts, addLog, setParsedData, toggleImport, removeProduct: removeProductFromStore } = useAppStore()
 
   const [isAnalyzingAll, setIsAnalyzingAll] = useState(false)
   const [analysisProgress, setAnalysisProgress] = useState({ current: 0, total: 0 })
@@ -71,6 +71,13 @@ export const useWhatsAppActions = () => {
     addLog('Arquivo CSV de produtos exportado')
   }, [parsedProducts, downloadBlob, buildCsv, addLog])
 
+  const copyProductToClipboard = useCallback(async (id: string) => {
+    const product = parsedProducts.find((p) => p.id === id)
+    if (!product) return
+    await navigator.clipboard.writeText(JSON.stringify(product, null, 2))
+    addLog(`Objeto copiado: "${product.title}"`)
+  }, [parsedProducts, addLog])
+
   const clearNumbers = useCallback(() => {
     setParsedData([], parsedProducts)
     addLog('Banco de contatos limpo')
@@ -87,6 +94,12 @@ export const useWhatsAppActions = () => {
     setParsedData(parsedNumbers, nonCoupons)
     addLog('Banco de cupons limpo')
   }, [parsedNumbers, parsedProducts, setParsedData, addLog])
+
+  const removeProduct = useCallback((id: string) => {
+    const product = parsedProducts.find((p) => p.id === id)
+    removeProductFromStore(id)
+    if (product) addLog(`Produto removido: "${product.title}"`)
+  }, [parsedProducts, removeProductFromStore, addLog])
 
   const sendScrapeRequest = useCallback((targetUrl: string): Promise<CategorizedData> => {
     return new Promise((resolve, reject) => {
@@ -299,9 +312,11 @@ export const useWhatsAppActions = () => {
     exportNumbersTxt,
     exportNumbersCsv,
     exportProductsCsv,
+    copyProductToClipboard,
     clearNumbers,
     clearProducts,
     clearCoupons,
+    removeProduct,
     analyzeSingleProduct,
     analyzeAllProducts
   }

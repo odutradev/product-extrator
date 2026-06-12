@@ -1,5 +1,5 @@
 import { styled } from '@mui/material/styles'
-import { Box, Card } from '@mui/material'
+import { Box } from '@mui/material'
 
 export const ActionBar = styled(Box)(({ theme }) => ({
   justifyContent: 'space-between',
@@ -21,12 +21,4 @@ export const ScrapeControlBox = styled(Box)(({ theme }) => ({
   alignItems: 'center',
   flexWrap: 'wrap',
   display: 'flex'
-}))
-
-export const ProductCard = styled(Card)(({ theme }) => ({
-  backgroundColor: '#18181b',
-  border: `1px solid ${theme.palette.divider}`,
-  flexDirection: 'column',
-  display: 'flex',
-  height: '100%'
 }))

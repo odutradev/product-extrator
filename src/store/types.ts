@@ -44,4 +44,5 @@ export interface AppState {
   addLog: (message: string) => void
   clearLogs: () => void
   setParsedData: (numbers: PhoneNumber[], products: Product[]) => void
+  removeProduct: (id: string) => void
 }

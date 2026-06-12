@@ -14,7 +14,10 @@ export const useAppStore = create<AppState>()(
       toggleConsole: () => set((state) => ({ isConsoleOpen: !state.isConsoleOpen })),
       addLog: (message) => set((state) => ({ logs: [...state.logs, message] })),
       clearLogs: () => set({ logs: [] }),
-      setParsedData: (parsedNumbers, parsedProducts) => set({ parsedNumbers, parsedProducts })
+      setParsedData: (parsedNumbers, parsedProducts) => set({ parsedNumbers, parsedProducts }),
+      removeProduct: (id) => set((state) => ({
+        parsedProducts: state.parsedProducts.filter((p) => p.id !== id)
+      }))
     }),
     {
       name: 'wp-parser-storage',
