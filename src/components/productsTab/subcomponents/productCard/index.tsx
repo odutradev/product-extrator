@@ -1,6 +1,8 @@
-import { Typography, Box, Link, Chip, IconButton, CircularProgress, Tooltip } from '@mui/material'
-import { ContentCopy, DeleteOutline, Refresh, ErrorOutline } from '@mui/icons-material'
-import { CardWrapper, CardBody, CardActionBar, CategoryChipRow } from './styles'
+import { ContentCopy, DeleteOutline, TravelExplore, ErrorOutline, NavigateNext } from '@mui/icons-material'
+import { Typography, Box, Link, IconButton, CircularProgress, Tooltip, Breadcrumbs } from '@mui/material'
+
+import { CardWrapper, CardBody, CardActionBar } from './styles'
+
 import type { ProductCardProps } from './types'
 
 export const ProductCard = ({ product, onScrape, onCopy, onRemove }: ProductCardProps) => {
@@ -21,17 +23,28 @@ export const ProductCard = ({ product, onScrape, onCopy, onRemove }: ProductCard
           </Typography>
         )}
         {breadcrumbs.length > 0 && (
-          <CategoryChipRow>
-            {breadcrumbs.map((crumb) => (
-              <Chip
-                key={crumb.name}
-                label={crumb.name}
-                size="small"
-                variant="outlined"
-                color={crumb.mainCategory ? 'secondary' : 'default'}
-              />
-            ))}
-          </CategoryChipRow>
+          <Box mt={1.5} display="flex" alignItems="center">
+            <Breadcrumbs
+              separator={<NavigateNext sx={{ fontSize: 14, color: 'text.secondary' }} />}
+              sx={{
+                '& .MuiBreadcrumbs-ol': {
+                  flexWrap: 'nowrap',
+                  overflow: 'hidden'
+                }
+              }}
+            >
+              {breadcrumbs.map((crumb) => (
+                <Typography
+                  key={crumb.name}
+                  variant="caption"
+                  color={crumb.mainCategory ? 'primary' : 'text.secondary'}
+                  sx={{ whiteSpace: 'nowrap', fontSize: '0.75rem' }}
+                >
+                  {crumb.name}
+                </Typography>
+              ))}
+            </Breadcrumbs>
+          </Box>
         )}
         {error && (
           <Box display="flex" alignItems="center" gap={0.5} mt={1}>
@@ -51,7 +64,7 @@ export const ProductCard = ({ product, onScrape, onCopy, onRemove }: ProductCard
             <IconButton size="small" color="secondary" onClick={() => onScrape(id)} disabled={isAnalyzing}>
               {isAnalyzing
                 ? <CircularProgress size={14} color="secondary" />
-                : <Refresh fontSize="small" />
+                : <TravelExplore fontSize="small" />
               }
             </IconButton>
           </span>

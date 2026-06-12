@@ -1,32 +1,48 @@
-import { Grid, TextField, Button, Box, Typography, LinearProgress } from '@mui/material'
+import { Grid, TextField, Button, Box, Typography, LinearProgress, ToggleButtonGroup, ToggleButton } from '@mui/material'
 import { PlayArrow, Download, DeleteSweep } from '@mui/icons-material'
+import { useState } from 'react'
+
 import { useWhatsAppActions } from '../../hooks/useWhatsAppActions'
 import { ProductCard } from './subcomponents/productCard'
 import { ActionBar, ScrapeControlBox } from './styles'
 import { useAppStore } from '../../store/appStore'
-import { useState } from 'react'
 
 export const ProductsTab = () => {
   const [search, setSearch] = useState('')
+  const [selectedProvider, setSelectedProvider] = useState('Todos')
 
   const parsedProducts = useAppStore((state) => state.parsedProducts)
-  const {
-    isAnalyzingAll,
-    analysisProgress,
-    analyzeAllProducts,
-    exportProductsCsv,
-    clearProducts,
-    analyzeSingleProduct,
-    copyProductToClipboard,
-    removeProduct
-  } = useWhatsAppActions()
+  const { isAnalyzingAll, analysisProgress, analyzeAllProducts, exportProductsCsv, clearProducts, analyzeSingleProduct, copyProductToClipboard, removeProduct } = useWhatsAppActions()
 
-  const products = parsedProducts.filter((p) =>
+  const providerOrder: Record<string, number> = {
+    'Mercado Livre': 1,
+    'Amazon': 2,
+    'Shopee': 3,
+    'Outros': 4
+  }
+
+  const handleProviderChange = (_event: React.MouseEvent<HTMLElement>, newProvider: string | null) => {
+    if (newProvider !== null) {
+      setSelectedProvider(newProvider)
+    }
+  }
+
+  const baseProducts = parsedProducts.filter((p) =>
     p.type === 'product' && (
       p.title.toLowerCase().includes(search.toLowerCase()) ||
       p.provider.toLowerCase().includes(search.toLowerCase())
     )
   )
+
+  const filteredProducts = selectedProvider === 'Todos'
+    ? baseProducts
+    : baseProducts.filter((p) => p.provider === selectedProvider)
+
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
+    const orderA = providerOrder[a.provider] ?? 99
+    const orderB = providerOrder[b.provider] ?? 99
+    return orderA - orderB
+  })
 
   const progressPercent = analysisProgress.total > 0
     ? Math.round((analysisProgress.current / analysisProgress.total) * 100)
@@ -35,13 +51,28 @@ export const ProductsTab = () => {
   return (
     <Box>
       <ActionBar>
-        <TextField
-          size="small"
-          placeholder="Buscar por título ou loja..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          variant="outlined"
-        />
+        <Box display="flex" gap={2} flexWrap="wrap" alignItems="center">
+          <TextField
+            size="small"
+            placeholder="Buscar por título ou loja..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            variant="outlined"
+          />
+          <ToggleButtonGroup
+            value={selectedProvider}
+            exclusive
+            onChange={handleProviderChange}
+            size="small"
+            color="primary"
+          >
+            <ToggleButton value="Todos">Todos</ToggleButton>
+            <ToggleButton value="Mercado Livre">Mercado Livre</ToggleButton>
+            <ToggleButton value="Amazon">Amazon</ToggleButton>
+            <ToggleButton value="Shopee">Shopee</ToggleButton>
+            <ToggleButton value="Outros">Outros</ToggleButton>
+          </ToggleButtonGroup>
+        </Box>
         <Box display="flex" gap={2}>
           <Button variant="contained" color="info" startIcon={<Download />} onClick={exportProductsCsv}>Exportar CSV</Button>
           <Button variant="outlined" color="error" startIcon={<DeleteSweep />} onClick={clearProducts}>Limpar Tudo</Button>
@@ -77,8 +108,8 @@ export const ProductsTab = () => {
       )}
 
       <Grid container spacing={3}>
-        {products.map((p) => (
-          <Grid item xs={12} sm={6} md={4} key={p.id}>
+        {sortedProducts.map((p) => (
+          <Grid item xs={12} md={6} key={p.id}>
             <ProductCard
               product={p}
               onScrape={analyzeSingleProduct}

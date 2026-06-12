@@ -139,14 +139,14 @@ export const useWhatsAppActions = () => {
     try {
       const analysis = await sendScrapeRequest(product.link)
       const finalProducts = updatedProducts.map((p) =>
-        p.id === id ? { ...p, categorized: analysis, error: null, isAnalyzing: false } : p
+        p.id === id ? { ...p, categorized: analysis, error: null, isAnalyzing: false, analyzed: true } : p
       )
       setParsedData(parsedNumbers, finalProducts)
       addLog(`Sucesso na extração de: ${product.title}`)
     } catch (e) {
       const errorMsg = e instanceof Error ? e.message : String(e)
       const finalProducts = updatedProducts.map((p) =>
-        p.id === id ? { ...p, error: errorMsg, isAnalyzing: false } : p
+        p.id === id ? { ...p, error: errorMsg, isAnalyzing: false, analyzed: false } : p
       )
       setParsedData(parsedNumbers, finalProducts)
       addLog(`Falha na extração de: "${product.title}" | ${errorMsg}`)
@@ -179,12 +179,12 @@ export const useWhatsAppActions = () => {
       try {
         const analysis = await sendScrapeRequest(product.link)
         currentProductsState = currentProductsState.map((p) =>
-          p.id === product.id ? { ...p, categorized: analysis, error: null, isAnalyzing: false } : p
+          p.id === product.id ? { ...p, categorized: analysis, error: null, isAnalyzing: false, analyzed: true } : p
         )
       } catch (e) {
         const errorMsg = e instanceof Error ? e.message : String(e)
         currentProductsState = currentProductsState.map((p) =>
-          p.id === product.id ? { ...p, error: errorMsg, isAnalyzing: false } : p
+          p.id === product.id ? { ...p, error: errorMsg, isAnalyzing: false, analyzed: false } : p
         )
       }
 

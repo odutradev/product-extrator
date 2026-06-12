@@ -21,6 +21,7 @@ export interface Product {
   link: string
   categorized: CategorizedData | null
   isAnalyzing: boolean
+  analyzed?: boolean
   error: string | null
   type: 'coupon' | 'product'
   provider: string
