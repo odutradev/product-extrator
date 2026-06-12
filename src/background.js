@@ -61,8 +61,8 @@ const scrapeProductData = async (tabId) => {
       const titleEl = document.querySelector('h1.ui-pdp-title, h1[class*="title"]');
       const title = titleEl?.textContent.trim() ?? document.title;
 
-      const priceIntEl = document.querySelector('.andes-money-amount__fraction');
-      const priceCentsEl = document.querySelector('.andes-money-amount__cents');
+      const priceIntEl = document.querySelector('.ui-pdp-price__second-line .andes-money-amount__fraction, .andes-money-amount__fraction');
+      const priceCentsEl = document.querySelector('.ui-pdp-price__second-line .andes-money-amount__cents, .andes-money-amount__cents');
       const price = priceIntEl
         ? `R$ ${priceIntEl.textContent.trim()}${priceCentsEl ? `,${priceCentsEl.textContent.trim()}` : ''}`
         : null;
@@ -81,7 +81,7 @@ const scrapeProductData = async (tabId) => {
       const descEl = document.querySelector('.ui-pdp-description__content');
       const description = descEl?.textContent.trim().slice(0, 220) ?? '';
 
-      const payload = {
+      return {
         title,
         price,
         brand,
@@ -89,8 +89,6 @@ const scrapeProductData = async (tabId) => {
         description,
         breadcrumbsWithLinks
       };
-
-      return payload;
     }
   });
 
@@ -103,6 +101,7 @@ const resolveProductUrl = async (tabId) => {
 
   const isAlreadyProductPage =
     currentUrl.includes('mercadolivre.com.br/MLB') ||
+    currentUrl.includes('/p/MLB') ||
     currentUrl.includes('produto.mercadolivre.com.br');
 
   if (isAlreadyProductPage) return null;
@@ -134,7 +133,9 @@ const scrapeProductFromUrl = async (affiliateUrl) => {
   } catch (error) {
     return { success: false, error: error.message };
   } finally {
-    if (tabId !== null) chrome.tabs.remove(tabId).catch(() => {});
+    if (tabId !== null) {
+      chrome.tabs.remove(tabId).catch(() => {});
+    }
   }
 };
 

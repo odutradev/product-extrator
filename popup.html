@@ -75,7 +75,10 @@
         </div>
       </div>
       <div class="border-b border-slate-900 flex flex-wrap gap-4">
-        <button id="tabBtnJoined" class="border-b-2 border-emerald-500 text-emerald-400 pb-3 font-semibold text-sm transition-all">
+        <button id="tabBtnDashboard" class="border-b-2 border-violet-500 text-violet-400 pb-3 font-semibold text-sm transition-all">
+          Análise Competitiva
+        </button>
+        <button id="tabBtnJoined" class="border-b-2 border-transparent text-slate-400 hover:text-slate-300 pb-3 font-semibold text-sm transition-all">
           Mapeamento de Entradas
         </button>
         <button id="tabBtnProducts" class="border-b-2 border-transparent text-slate-400 hover:text-slate-300 pb-3 font-semibold text-sm transition-all">
@@ -85,23 +88,89 @@
           Cupons &amp; Ofertas
         </button>
       </div>
-      <div id="tabContentJoined" class="space-y-4">
+      <div id="tabContentDashboard" class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div class="bg-slate-900/20 border border-slate-900 rounded-xl p-5 flex flex-col justify-between">
+            <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Ticket Médio Geral</span>
+            <p id="dashTicketMedio" class="text-2xl font-bold text-emerald-400 mt-1">R$ 0,00</p>
+            <span id="dashTicketSub" class="text-[10px] text-slate-500 mt-1">0 produtos com preço</span>
+          </div>
+          <div class="bg-slate-900/20 border border-slate-900 rounded-xl p-5 flex flex-col justify-between">
+            <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Produtos Scrapeados</span>
+            <p id="dashScrapeCount" class="text-2xl font-bold text-violet-400 mt-1">0 / 0</p>
+            <div class="w-full bg-slate-950 rounded-full h-1.5 mt-2">
+              <div id="dashScrapeBar" class="bg-violet-500 h-1.5 rounded-full transition-all" style="width: 0%"></div>
+            </div>
+          </div>
+          <div class="bg-slate-900/20 border border-slate-900 rounded-xl p-5 flex flex-col justify-between">
+            <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Competidor Dominante</span>
+            <p id="dashLeaderStore" class="text-2xl font-bold text-sky-400 mt-1">-</p>
+            <span id="dashLeaderCount" class="text-[10px] text-slate-500 mt-1">0 anúncios cadastrados</span>
+          </div>
+          <div class="bg-slate-900/20 border border-slate-900 rounded-xl p-5 flex flex-col justify-between">
+            <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Eficiência de Catálogo</span>
+            <p id="dashCatalogRatio" class="text-2xl font-bold text-amber-400 mt-1">0%</p>
+            <span class="text-[10px] text-slate-500 mt-1">Percentual de enriquecimento</span>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="bg-slate-900/20 border border-slate-900 rounded-xl p-6 space-y-4">
+            <div>
+              <h3 class="text-sm font-bold text-slate-200">Share por Competidor</h3>
+              <p class="text-xs text-slate-400">Distribuição volumétrica das ofertas identificadas por player</p>
+            </div>
+            <div id="dashShareContainer" class="space-y-3"></div>
+          </div>
+          <div class="bg-slate-900/20 border border-slate-900 rounded-xl p-6 space-y-4">
+            <div>
+              <h3 class="text-sm font-bold text-slate-200">Ticket Médio por Competidor</h3>
+              <p class="text-xs text-slate-400">Relação de preços médios praticados nas plataformas</p>
+            </div>
+            <div id="dashAvgPriceContainer" class="space-y-3"></div>
+          </div>
+        </div>
+        <div class="bg-slate-900/20 border border-slate-900 rounded-xl p-6 space-y-4">
+          <div>
+            <h3 class="text-sm font-bold text-slate-200">Distribuição por Faixas de Preço</h3>
+            <p class="text-xs text-slate-400">Análise volumétrica agrupada por ticket de venda</p>
+          </div>
+          <div class="grid grid-cols-5 gap-2 pt-4 h-40 items-end border-b border-slate-900" id="dashPriceRangesBars"></div>
+          <div class="grid grid-cols-5 gap-2 text-center text-[10px] text-slate-400" id="dashPriceRangesLabels"></div>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="bg-slate-900/20 border border-slate-900 rounded-xl p-6 space-y-4">
+            <div>
+              <h3 class="text-sm font-bold text-slate-200">Top Categorias Gerais (Breadcrumb Nível 1)</h3>
+              <p class="text-xs text-slate-400">Análise de catálogo consolidada por macro-segmento</p>
+            </div>
+            <div id="dashGeneralCategories" class="space-y-3"></div>
+          </div>
+          <div class="bg-slate-900/20 border border-slate-900 rounded-xl p-6 space-y-4">
+            <div>
+              <h3 class="text-sm font-bold text-slate-200">Top Categorias Principais (Último Nível)</h3>
+              <p class="text-xs text-slate-400">Nicho operacional com maior incidência de captação</p>
+            </div>
+            <div id="dashMainCategories" class="space-y-3"></div>
+          </div>
+        </div>
+      </div>
+      <div id="tabContentJoined" class="hidden space-y-4">
         <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div class="relative w-full lg:w-72">
             <input type="text" id="searchNumbers" placeholder="Filtrar por DDD ou número..."
               class="w-full bg-slate-950 border border-slate-900 focus:border-slate-800 rounded-lg px-3 py-1.5 text-sm text-slate-200 outline-none">
           </div>
           <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
-            <button id="copyNumbers" class="flex-1 lg:flex-initial bg-emerald-600 hover:bg-emerald-500 text-emerald-950 text-xs font-bold px-3 py-2 rounded-lg transition-all whitespace-nowrap">
+            <button id="copyNumbers" class="flex-1 lg:flex-initial bg-emerald-600 hover:bg-emerald-500 text-emerald-950 font-bold px-3 py-2 rounded-lg transition-all whitespace-nowrap">
               Copiar Clean
             </button>
-            <button id="exportNumbersTxt" class="flex-1 lg:flex-initial bg-slate-900 hover:bg-slate-800 text-slate-200 text-xs font-bold px-3 py-2 rounded-lg border border-slate-800 transition-all whitespace-nowrap">
+            <button id="exportNumbersTxt" class="flex-1 lg:flex-initial bg-slate-900 hover:bg-slate-800 text-slate-200 font-bold px-3 py-2 rounded-lg border border-slate-800 transition-all whitespace-nowrap">
               Exportar TXT
             </button>
-            <button id="exportNumbersCsv" class="flex-1 lg:flex-initial bg-slate-900 hover:bg-slate-800 text-slate-200 text-xs font-bold px-3 py-2 rounded-lg border border-slate-800 transition-all whitespace-nowrap">
+            <button id="exportNumbersCsv" class="flex-1 lg:flex-initial bg-slate-900 hover:bg-slate-800 text-slate-200 font-bold px-3 py-2 rounded-lg border border-slate-800 transition-all whitespace-nowrap">
               Exportar CSV
             </button>
-            <button id="clearNumbers" class="flex-1 lg:flex-initial bg-red-950 hover:bg-red-900 text-red-200 text-xs font-bold px-3 py-2 rounded-lg border border-red-900 transition-all whitespace-nowrap">
+            <button id="clearNumbers" class="flex-1 lg:flex-initial bg-red-950 hover:bg-red-900 text-red-200 font-bold px-3 py-2 rounded-lg border border-red-900 transition-all whitespace-nowrap">
               Limpar Banco
             </button>
           </div>
@@ -125,10 +194,10 @@
           <div class="flex items-center gap-2 w-full lg:w-auto">
             <input type="text" id="searchProducts" placeholder="Buscar por título ou loja..."
               class="w-full lg:w-72 bg-slate-950 border border-slate-900 focus:border-slate-800 rounded-lg px-3 py-1.5 text-sm text-slate-200 outline-none">
-            <button id="exportProducts" class="bg-blue-600 hover:bg-blue-500 text-blue-950 text-xs font-bold px-3 py-2 rounded-lg transition-all whitespace-nowrap">
+            <button id="exportProducts" class="bg-blue-600 hover:bg-blue-500 text-blue-950 font-bold px-3 py-2 rounded-lg transition-all whitespace-nowrap">
               Exportar CSV
             </button>
-            <button id="clearProducts" class="bg-red-950 hover:bg-red-900 text-red-200 text-xs font-bold px-3 py-2 rounded-lg border border-red-900 transition-all whitespace-nowrap">
+            <button id="clearProducts" class="bg-red-950 hover:bg-red-900 text-red-200 font-bold px-3 py-2 rounded-lg border border-red-900 transition-all whitespace-nowrap">
               Limpar
             </button>
           </div>
@@ -163,7 +232,7 @@
             <input type="text" id="searchCoupons" placeholder="Buscar por cupons..."
               class="w-full bg-slate-950 border border-slate-900 focus:border-slate-800 rounded-lg px-3 py-1.5 text-sm text-slate-200 outline-none">
           </div>
-          <button id="clearCoupons" class="bg-red-950 hover:bg-red-900 text-red-200 text-xs font-bold px-4 py-2 rounded-lg border border-red-900 transition-all">
+          <button id="clearCoupons" class="bg-red-950 hover:bg-red-900 text-red-200 font-bold px-4 py-2 rounded-lg border border-red-900 transition-all">
             Limpar Cupons
           </button>
         </div>
