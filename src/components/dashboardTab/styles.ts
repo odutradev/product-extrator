@@ -31,16 +31,3 @@ export const StatLabel = styled(Typography)(({ theme }) => ({
   marginTop: theme.spacing(1),
   fontSize: '0.75rem'
 }))
-
-export const ListContainer = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  flexDirection: 'column',
-  gap: theme.spacing(1.5),
-  marginTop: theme.spacing(1.5)
-}))
-
-export const ListItemBox = styled(Box)({
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'center'
-})

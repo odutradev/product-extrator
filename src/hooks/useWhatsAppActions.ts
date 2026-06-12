@@ -13,7 +13,7 @@ export const useWhatsAppActions = () => {
 
   const handleImportText = useCallback((content: string) => {
     const { numbers: newNumbers, products: newProducts } = parseWhatsAppDump(content)
-    
+
     const mergedNumbers = Array.from(new Map([...parsedNumbers, ...newNumbers].map((item) => [item.clean, item])).values())
     const mergedProducts = Array.from(new Map([...parsedProducts, ...newProducts].map((item) => [item.link, item])).values())
 
@@ -26,7 +26,7 @@ export const useWhatsAppActions = () => {
     const blob = new Blob([content], { type: mimeType })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
-    
+
     link.href = url
     link.download = filename
     document.body.appendChild(link)
@@ -91,20 +91,20 @@ export const useWhatsAppActions = () => {
   const sendScrapeRequest = useCallback((targetUrl: string): Promise<CategorizedData> => {
     return new Promise((resolve, reject) => {
       addLog(`Enviando solicitação de raspagem para: ${targetUrl}`)
-      
+
       chrome.runtime.sendMessage({ action: 'scrapeProduct', url: targetUrl }, (response) => {
         if (chrome.runtime.lastError) {
           const msg = chrome.runtime.lastError.message
           addLog(`Erro de comunicação com background: ${msg}`)
           return reject(new Error(msg))
         }
-        
+
         if (!response?.success) {
           const errMsg = response?.error ?? 'Erro de rede ou timeout'
           addLog(`Falha na raspagem: ${errMsg}`)
           return reject(new Error(errMsg))
         }
-        
+
         addLog('Dados recuperados com sucesso!')
         resolve(response.data)
       })
@@ -113,35 +113,27 @@ export const useWhatsAppActions = () => {
 
   const analyzeSingleProduct = useCallback(async (id: string) => {
     const product = parsedProducts.find((p) => p.id === id)
-    
-    if (!product) {
-      return
-    }
 
-    const updatedProducts = parsedProducts.map((p) => 
-      p.id === id 
-        ? { ...p, isAnalyzing: true } 
-        : p
+    if (!product) return
+
+    const updatedProducts = parsedProducts.map((p) =>
+      p.id === id ? { ...p, isAnalyzing: true } : p
     )
-    
+
     setParsedData(parsedNumbers, updatedProducts)
     addLog(`Iniciando raspagem individual para: "${product.title}"`)
 
     try {
       const analysis = await sendScrapeRequest(product.link)
-      const finalProducts = updatedProducts.map((p) => 
-        p.id === id 
-          ? { ...p, categorized: analysis, error: null, isAnalyzing: false } 
-          : p
+      const finalProducts = updatedProducts.map((p) =>
+        p.id === id ? { ...p, categorized: analysis, error: null, isAnalyzing: false } : p
       )
       setParsedData(parsedNumbers, finalProducts)
       addLog(`Sucesso na extração de: ${product.title}`)
     } catch (e) {
       const errorMsg = e instanceof Error ? e.message : String(e)
-      const finalProducts = updatedProducts.map((p) => 
-        p.id === id 
-          ? { ...p, error: errorMsg, isAnalyzing: false } 
-          : p
+      const finalProducts = updatedProducts.map((p) =>
+        p.id === id ? { ...p, error: errorMsg, isAnalyzing: false } : p
       )
       setParsedData(parsedNumbers, finalProducts)
       addLog(`Falha na extração de: "${product.title}" | ${errorMsg}`)
@@ -150,7 +142,7 @@ export const useWhatsAppActions = () => {
 
   const analyzeAllProducts = useCallback(async () => {
     const queue = parsedProducts.filter((p) => p.type === 'product' && !p.categorized && p.provider === 'Mercado Livre')
-    
+
     if (queue.length === 0) {
       addLog('Sem novos produtos compatíveis para análise')
       return
@@ -165,30 +157,24 @@ export const useWhatsAppActions = () => {
       const product = queue[i]
       setAnalysisProgress({ current: i + 1, total: queue.length })
 
-      currentProductsState = currentProductsState.map((p) => 
-        p.id === product.id 
-          ? { ...p, isAnalyzing: true } 
-          : p
+      currentProductsState = currentProductsState.map((p) =>
+        p.id === product.id ? { ...p, isAnalyzing: true } : p
       )
-      
+
       setParsedData(parsedNumbers, currentProductsState)
 
       try {
         const analysis = await sendScrapeRequest(product.link)
-        currentProductsState = currentProductsState.map((p) => 
-          p.id === product.id 
-            ? { ...p, categorized: analysis, error: null, isAnalyzing: false } 
-            : p
+        currentProductsState = currentProductsState.map((p) =>
+          p.id === product.id ? { ...p, categorized: analysis, error: null, isAnalyzing: false } : p
         )
       } catch (e) {
         const errorMsg = e instanceof Error ? e.message : String(e)
-        currentProductsState = currentProductsState.map((p) => 
-          p.id === product.id 
-            ? { ...p, error: errorMsg, isAnalyzing: false } 
-            : p
+        currentProductsState = currentProductsState.map((p) =>
+          p.id === product.id ? { ...p, error: errorMsg, isAnalyzing: false } : p
         )
       }
-      
+
       setParsedData(parsedNumbers, currentProductsState)
     }
 
@@ -197,11 +183,17 @@ export const useWhatsAppActions = () => {
   }, [parsedNumbers, parsedProducts, setParsedData, addLog, sendScrapeRequest])
 
   const parsePrice = useCallback((priceStr: string | null | undefined): number => {
-    if (!priceStr) {
-      return 0
+    if (!priceStr) return 0
+    const saleMatch = priceStr.match(/por\s+R\$\s*([\d.]+,\d{2})/i)
+    if (saleMatch) {
+      const normalized = saleMatch[1].replace(/\./g, '').replace(',', '.')
+      const val = parseFloat(normalized)
+      return isNaN(val) ? 0 : val
     }
-    const match = priceStr.replace(/[^\d,]/g, '').replace(',', '.')
-    const val = parseFloat(match)
+    const firstMatch = priceStr.match(/R\$\s*([\d.]+,\d{2})/)
+    if (!firstMatch) return 0
+    const normalized = firstMatch[1].replace(/\./g, '').replace(',', '.')
+    const val = parseFloat(normalized)
     return isNaN(val) ? 0 : val
   }, [])
 
@@ -212,12 +204,12 @@ export const useWhatsAppActions = () => {
     let totalScrapeCount = 0
     let totalPriceSum = 0
     let pricedCount = 0
-    
+
     const storeCounts: Record<string, number> = {}
     const storePrices: Record<string, { total: number; count: number }> = {}
     const generalCategories: Record<string, number> = {}
     const mainCategories: Record<string, number> = {}
-    
+
     const priceRanges = {
       'Até R$50': 0,
       'R$50 - R$150': 0,
@@ -230,7 +222,7 @@ export const useWhatsAppActions = () => {
       const store = p.provider || 'Outros'
       storeCounts[store] = (storeCounts[store] || 0) + 1
 
-      const actualPriceStr = p.categorized?.price || p.price
+      const actualPriceStr = p.categorized?.price ?? p.price
       const priceVal = parsePrice(actualPriceStr)
 
       if (priceVal > 0) {
@@ -240,7 +232,7 @@ export const useWhatsAppActions = () => {
         if (!storePrices[store]) {
           storePrices[store] = { total: 0, count: 0 }
         }
-        
+
         storePrices[store].total += priceVal
         storePrices[store].count++
 
@@ -260,18 +252,13 @@ export const useWhatsAppActions = () => {
       if (p.categorized) {
         totalScrapeCount++
         const breadcrumbs = p.categorized.breadcrumbsWithLinks ?? []
-        
+
         if (breadcrumbs.length > 0) {
           const genCat = breadcrumbs[0]?.name
           const mainCat = breadcrumbs[breadcrumbs.length - 1]?.name
-          
-          if (genCat) {
-            generalCategories[genCat] = (generalCategories[genCat] || 0) + 1
-          }
-          
-          if (mainCat) {
-            mainCategories[mainCat] = (mainCategories[mainCat] || 0) + 1
-          }
+
+          if (genCat) generalCategories[genCat] = (generalCategories[genCat] || 0) + 1
+          if (mainCat) mainCategories[mainCat] = (mainCategories[mainCat] || 0) + 1
         }
       }
     })
@@ -280,7 +267,7 @@ export const useWhatsAppActions = () => {
 
     let dominantStore = '-'
     let dominantCount = 0
-    
+
     Object.entries(storeCounts).forEach(([store, count]) => {
       if (count > dominantCount) {
         dominantCount = count
